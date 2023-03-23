@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="baiyunu.edu.smbms.dao.ProviderMapper">
+
+    <!-- 查询供应商表记录数 -->
+    <select id="count" resultType="int">
+        select count(1) as count from smbms_provider
+    </select>
+
+    <!-- 查询供应商列表 -->
+    <select id="getProviderList" resultType="Provider">
+        select * from smbms_provider
+    </select>
+
+    <!-- 根据供应商名称查询供应商列表(模糊查询) -->
+    <select id="getProviderListByProName" resultType="Provider" parameterType="String">
+        select * from smbms_provider where proName like CONCAT ('%',#{proName},'%')
+    </select>
+    <!-- 根据供应商名称查询供应商列表(id查询) -->
+    <select id="getBillListByProId" resultType="Provider" resultMap="billProviderResultMap" parameterType="int">
+        select provider.proName,provider.proCode,smbms_bill.* from smbms_bill,provider where provider.id=smbms_bill.providerId and smbms_bill.providerId=#{proid};
+    </select>
+    <resultMap type="Provider" id="billProviderResultMap">
+        <result property="proName" column="proName"/>
+        <result property="proCode" column="proCode"/>
+        <collection property="billList" ofType="Bill" javaType="list">
+            <id property="id" column="id"/>
+            <result property="billCode" column="billCode"/>
+            <result property="productName" column="productName"/>
+            <result property="productUnit" column="productUnit"/>
+            <result property="productCount" column="productCount"/>
+            <result property="totalPrice" column="totalPrice"/>
+            <result property="isPayment" column="isPayment"/>
+            <result property="createdBy" column="createdBy"/>
+            <result property="creationDate" column="creationDate"/>
+            <result property="modifyBy" column="modifyBy"/>
+            <result property="modifyDate" column="modifyDate"/>
+            <result property="providerId" column="providerId"/>
+        </collection>
+    </resultMap>
+
+
+</mapper>

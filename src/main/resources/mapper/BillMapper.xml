@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="baiyunu.edu.smbms.dao.BillMapper">
+
+    <!-- 查询供应商表记录数 -->
+    <select id="count" resultType="int">
+        select count(1) as count from smbms_bill
+    </select>
+
+    <!-- 查询供应商列表 -->
+    <select id="getBillList" resultType="Bill">
+        select * from smbms_bill
+    </select>
+
+
+    <select id="getBillById" resultType="Bill" parameterType="int">
+        select * from smbms_bill where smbms_bill.id=#{billId}
+    </select>
+
+
+
+</mapper>

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="baiyunu.edu.smbms.dao.UserMapper">
+
+    <!-- 查询用户表记录数 -->
+    <select id="count" resultType="int">
+        select count(1) as count from smbms_user
+    </select>
+
+    <!-- 查询用户列表 -->
+    <select id="getUserList" resultType="User">
+        select * from smbms_user
+    </select>
+
+    <!-- 根据用户名称查询用户列表(模糊查询) -->
+    <select id="getUserListByUserName" resultType="User" parameterType="string">
+        select * from smbms_user where userName like CONCAT ('%',#{username},'%')
+    </select>
+
+    <!-- 查询用户列表(参数：对象入参) -->
+    <select id="getUserListByUserBean" resultType="User" parameterType="User">
+        select * from smbms_user
+        where userName like CONCAT ('%',#{userName},'%') and userRole = #{userRole}
+    </select>
+
+    <!-- 查询用户列表(参数：Map) -->
+    <select id="getUserListByMap" resultType="User" parameterType="Map">
+        select * from smbms_user
+        where userName like CONCAT ('%',#{uName},'%') and userRole = #{uRole}
+    </select>
+
+    <!-- 当数据库中的字段信息与对象的属性不一致时需要通过resultMap来映射 -->
+    <resultMap type="User" id="userList">
+        <result property="id" column="id"/>
+        <result property="userCode" column="userCode"/>
+        <result property="userName" column="userName"/>
+        <result property="phone" column="phone"/>
+        <result property="birthday" column="birthday"/>
+        <result property="gender" column="gender"/>
+        <result property="userRole" column="userRole"/>
+        <result property="userRoleName" column="roleName"/>
+    </resultMap>
+
+    <!-- 查询用户列表(参数：对象入参) -->
+    <select id="getUserListWithRoleName" resultMap="userList" parameterType="User">
+        select u.*,r.roleName from smbms_user u,smbms_role r
+        where u.userName like CONCAT ('%',#{userName},'%')
+        and u.userRole = #{userRole} and u.userRole = r.id
+    </select>
+
+    <!-- 查询用户列表(参数：对象入参) -->
+    <select id="getAllUserWithRoleName" resultMap="userList" parameterType="User">
+        select u.*,r.roleName from smbms_user u,smbms_role r where u.userRole = r.id
+    </select>
+
+    <insert id="add" parameterType="User">
+        insert into smbms_user(userCode, userName, userPassword, gender, birthday, phone, address, userRole, createdBy, creationDate)
+        values (#{userCode},#{userName},#{userPassword},#{gender},#{birthday},#{phone}, #{address},#{userRole},#{createdBy},#{creationDate})
+    </insert>
+
+    <update id="modify" parameterType="User">
+        update smbms_user set userCode=#{userCode}, userName=#{userName}, userPassword=#{userPassword}, gender=#{gender},
+        birthday=#{birthday}, phone=#{phone}, address=#{address}, userRole=#{userRole}, modifyBy=#{modifyBy}, modifyDate=#{modifyDate} where id=#{id}
+    </update>
+
+    <update id="updatePwd">
+        update smbms_user set userPassword=#{newPassword} where id=#{userId}
+    </update>
+
+    <delete id="deleteByUserId" parameterType="int">
+        delete from smbms_user where id=#{userId}
+    </delete>
+
+
+    <resultMap type="User" id="userRoleResult">
+        <result property="id" column="id"/>
+        <result property="userCode" column="userCode"/>
+        <result property="userName" column="userName"/>
+        <result property="phone" column="phone"/>
+        <result property="birthday" column="birthday"/>
+        <result property="gender" column="gender"/>
+        <result property="userRole" column="userRole"/>
+        <association property="role" javaType="Role">
+            <id property="id" column="r_id"/>
+            <result property="roleCode" column="roleCode"/>
+            <result property="roleName" column="roleName"/>
+        </association>
+    </resultMap>
+
+    <select id="getUserListByRoleId" parameterType="Integer" resultMap="userRoleResult">
+        select u.*, r.id as r_id, r.roleCode, r.roleName from smbms_user u,smbms_role r where u.userRole=#{userRole} and u.userRole=r.id
+    </select>
+
+    <!-- 获取指定用户的地址列表(user表-address表：1对多关系) collection start-->
+    <resultMap type="User" id="userAddressResult">
+        <id property="id" column="id"/>
+        <result property="userCode" column="userCode"/>
+        <result property="userName" column="userName"/>
+        <collection property="addressList" ofType="Address">
+            <id property="id" column="a_id"/>
+            <result property="postCode" column="postCode"/>
+            <result property="tel" column="tel"/>
+            <result property="contact" column="contact"/>
+            <result property="addressDesc" column="addressDesc"/>
+        </collection>
+    </resultMap>
+
+    <select id="getAddressListByUserId" parameterType="Integer" resultMap="userAddressResult">
+        select u.*, a.id as a_id, a.contact, a.addressDesc, a.postCode, a.tel from smbms_user u, smbms_address a where u.id=a.userId and u.id=#{userId}
+    </select>
+
+</mapper>
